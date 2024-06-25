@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Thymeleaf Demo</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <div class="background">
+        <div class="content">
+            <h1 th:text="${message.title}">Welcome to our website!</h1>
+            <p th:text="'Welcome!'"></p> <!-- 静态文本示例 -->
+            <p th:text="${message.content}">This is a demo of text effects and background images.</p> <!-- 动态显示Message对象的content属性值 -->
+            <img src="/images/background.jpg" alt="Background Image">
+        </div>
+    </div>
+</body>
+</html>
