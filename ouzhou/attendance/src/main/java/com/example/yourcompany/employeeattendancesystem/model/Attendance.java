@@ -1,83 +1,87 @@
 package com.example.yourcompany.employeeattendancesystem.model;
 
-import jakarta.persistence.Entity;
-//import jakarta.persistence.GeneratedValue;
-//import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import java.util.Date;
-
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "attendance")
 public class Attendance {
-	@Id
-	private  Integer employeeId;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "employee_id")
+    private Integer employeeId;
+
+    @Column(name = "check_in")
+    private LocalDateTime checkIn;
+
+    @Column(name = "break_time")
+    private LocalDateTime breakTime;
+
+    @Column(name = "end_time")
+    private LocalDateTime endTime;
+
+    @Column(name = "work_hour")
+    private String workHour; // 添加工作时长字段
     
-    private String workHours;
-    private Date checkIn;
-    private Date breakTime;
-    private Date endTime;
+    @Transient
     private String breakTimeStr;
-    
 
-    
-    public Attendance() {
-    	
+    // Getter and Setter for fields
+    public Long getId() {
+        return id;
     }
 
-    public Attendance( Integer employeeId, Date checkIn, Date breakTime, Date endTime) {
-        this.employeeId = employeeId;
-        this.checkIn = checkIn;
-        this.breakTime = breakTime;
-        this.endTime = endTime;
-        
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    // getters and setters
-    public String getWorkHours() {
-        return workHours;
-    }
-
-    public void setWorkHours(String workHours) {
-        this.workHours = workHours;
-    }
-    
-
-    public  Integer getEmployeeId() {
+    public Integer getEmployeeId() {
         return employeeId;
     }
 
-    public void setEmployeeId( Integer employeeId) {
+    public void setEmployeeId(Integer employeeId) {
         this.employeeId = employeeId;
     }
 
-    public Date getCheckIn() {
+    public LocalDateTime getCheckIn() {
         return checkIn;
     }
 
-    public void setCheckIn(Date checkIn) {
+    public void setCheckIn(LocalDateTime checkIn) {
         this.checkIn = checkIn;
     }
 
-    public Date getBreakTime() {
+    public LocalDateTime getBreakTime() {
         return breakTime;
     }
 
-    public void setBreakTime(Date breakTime) {
+    public void setBreakTime(LocalDateTime breakTime) {
         this.breakTime = breakTime;
     }
 
-    public Date getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
+    }
+
+    public String getWorkHour() {
+        return workHour;
+    }
+
+    public void setWorkHour(String workHour) {
+        this.workHour = workHour;
     }
     
     public String getBreakTimeStr() {
         return breakTimeStr;
     }
-    
+
     public void setBreakTimeStr(String breakTimeStr) {
         this.breakTimeStr = breakTimeStr;
     }

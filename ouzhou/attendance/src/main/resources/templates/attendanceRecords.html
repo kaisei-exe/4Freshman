@@ -22,8 +22,13 @@
         </tbody>
     </table>
     
-    <script src="scripts.js"></script>
-    <script>
+    <input type="button" value="返回打卡页面" onclick="window.location.href='/attendance/form'">
+    <input type="text" id="employeeIdInput" placeholder="输入员工ID">
+	<button onclick="searchAttendance()">搜索</button>
+
+    
+    <script src="/js/scripts.js"></script>
+   <script>
         document.addEventListener('DOMContentLoaded', function() {
             fetch('/attendance/all')
                 .then(response => response.json())
@@ -32,28 +37,30 @@
                     tableBody.innerHTML = ''; // 清空表格
                     data.forEach(record => {
                         let row = document.createElement('tr');
-                        row.innerHTML = `
+                        row.innerHTML =`
                             <td>${record.employeeId}</td>
-                            <td>${record.checkIn}</td>
-                            <td>${record.breakTime}</td>
-                            <td>${record.endTime}</td>
+                            <td>${formatDateTime(record.checkIn)}</td>
+                            <td>${formatDateTime(record.breakTime)}</td>
+                            <td>${formatDateTime(record.endTime)}</td>
                             <td>${calculateTotalWorkHours(record.checkIn, record.breakTime, record.endTime)}</td>
                         `;
+                        
                         tableBody.appendChild(row);
                     });
                 })
                 .catch(error => console.error('Error fetching attendance records:', error));
         });
-
-        function calculateTotalWorkHours(checkIn, breakTime, endTime) {
-            let checkInTime = new Date(checkIn);
-            let breakStartTime = new Date(breakTime);
-            let endTimeTime = new Date(endTime);
-            let workDuration = (endTimeTime - checkInTime) - (endTimeTime - breakStartTime);
-            let hours = Math.floor(workDuration / (1000 * 60 * 60));
-            let minutes = Math.floor((workDuration % (1000 * 60 * 60)) / (1000 * 60));
-            return `${hours}h ${minutes}m`;
-        }
-    </script>
+		
+      //时间显示格式变更
+        function formatDateTime(datetime) {
+                const options = {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                };
+                return new Intl.DateTimeFormat('zh-CN', options).format(new Date(datetime));
+            }
+        
+        
+    </script> 
 </body>
 </html>
