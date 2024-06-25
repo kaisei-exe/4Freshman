@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <title>打卡记录</title>
+    <link rel="stylesheet" href="/css/Records.css">
+</head>
+<body>
+    <h2>打卡记录</h2>
+    <table id="attendanceTable">
+        <thead>
+            <tr>
+                <th>员工ID</th>
+                <th>上班时间</th>
+                <th>休息时间</th>
+                <th>下班时间</th>
+                <th>总工作时长</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 打卡记录将被插入到这里 -->
+        </tbody>
+    </table>
+    
+    <script src="scripts.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/attendance/all')
+                .then(response => response.json())
+                .then(data => {
+                    let tableBody = document.querySelector('#attendanceTable tbody');
+                    tableBody.innerHTML = ''; // 清空表格
+                    data.forEach(record => {
+                        let row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${record.employeeId}</td>
+                            <td>${record.checkIn}</td>
+                            <td>${record.breakTime}</td>
+                            <td>${record.endTime}</td>
+                            <td>${calculateTotalWorkHours(record.checkIn, record.breakTime, record.endTime)}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching attendance records:', error));
+        });
+
+        function calculateTotalWorkHours(checkIn, breakTime, endTime) {
+            let checkInTime = new Date(checkIn);
+            let breakStartTime = new Date(breakTime);
+            let endTimeTime = new Date(endTime);
+            let workDuration = (endTimeTime - checkInTime) - (endTimeTime - breakStartTime);
+            let hours = Math.floor(workDuration / (1000 * 60 * 60));
+            let minutes = Math.floor((workDuration % (1000 * 60 * 60)) / (1000 * 60));
+            return `${hours}h ${minutes}m`;
+        }
+    </script>
+</body>
+</html>
