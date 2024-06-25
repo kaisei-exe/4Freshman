@@ -25,6 +25,39 @@
     <input type="button" value="返回打卡页面" onclick="window.location.href='/attendance/form'">
     <input type="text" id="employeeIdInput" placeholder="输入员工ID">
 	<button onclick="searchAttendance()">搜索</button>
+	
+	<label for="yearSelect">年份:</label>
+    <select id="yearSelect">
+        <option value="2024">2024</option>
+        <option value="2023">2023</option>
+        <option value="2022">2022</option>
+        <option value="2021">2021</option>
+        <option value="2020">2020</option>
+        
+    </select>
+
+    <label for="monthSelect">月份:</label>
+    <select id="monthSelect">
+        <option value="1">一月</option>
+        <option value="2">二月</option>
+        <option value="3">三月</option>
+        <option value="4">四月</option>
+        <option value="5">五月</option>
+        <option value="6">六月</option>
+        <option value="7">七月</option>
+        <option value="8">八月</option>
+        <option value="9">九月</option>
+        <option value="10">十月</option>
+        <option value="11">十一月</option>
+        <option value="12">十二月</option>
+        
+       
+    </select>
+
+    <button id="filterButton">按选定时间查询</button>
+    
+    <h2 id="totalHours">该月总工作时长: </h2>
+    
 
     
     <script src="/js/scripts.js"></script>
@@ -48,7 +81,7 @@
                         tableBody.appendChild(row);
                     });
                 })
-                .catch(error => console.error('Error fetching attendance records:', error));
+                .catch(error => console.error('返回错误', error));
         });
 		
       //时间显示格式变更

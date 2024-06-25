@@ -7,11 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -20,11 +16,23 @@ public class AttendanceService {
     @Autowired
     private AttendanceRepository attendanceRepository;
 
+    public Attendance saveAttendance(Attendance attendance) {
+        try {
+            return attendanceRepository.save(attendance);
+        } catch (Exception e) {
+            throw new RuntimeException("Error saving attendance: " + e.getMessage());
+        }
+    }
+  
     /**
      * 查询所有打卡记录
      */
     public List<Attendance> getAllAttendances() {
-        return attendanceRepository.findAll();
+        try {
+            return attendanceRepository.findAll();
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching attendances: " + e.getMessage());
+        }
     }
 
     /**
@@ -33,7 +41,32 @@ public class AttendanceService {
     public Optional<Attendance> getAttendanceById(Integer employeeId) {
         return attendanceRepository.findById(employeeId);
     }
+    
+    
+    
+    /**按年月查询方法**/
+    public List<Attendance> getAttendanceByEmployeeIdAndYearMonth(int employeeId, int year, int month) {
+        return attendanceRepository.findByEmployeeIdAndYearMonth(employeeId, year, month);
+    }
 
+    /**计算总的该月份的工作时长**/
+    public Duration calculateTotalWorkDuration(List<Attendance> attendances) {
+        Duration totalDuration = Duration.ZERO;
+        for (Attendance attendance : attendances) {
+            if (attendance.getCheckIn() != null && attendance.getEndTime() != null) {
+                Duration workDuration = calculateWorkDuration(attendance.getCheckIn(), attendance.getEndTime());
+                
+                if (attendance.getBreakTime() != null) {
+                    workDuration = workDuration.minusHours(1);
+                }// 如果 breakTime 不为空，减去固定的1小时休息时间
+                
+                totalDuration = totalDuration.plus(workDuration);
+            }
+        }
+        return totalDuration;
+    }
+    
+    
     /**
      * 保存打卡记录
      */
@@ -61,7 +94,8 @@ public class AttendanceService {
         return attendanceRepository.save(attendance);
     }
 
-
+    
+ 
 
 
     /**
@@ -74,42 +108,10 @@ public class AttendanceService {
         return Duration.between(checkIn, endTime);
     }
 
-    /**
-    * 计算指定员工按月份的总工作时长
-    */
-   public List<MonthlyWorkHours> getTotalWorkHoursByMonth(Integer employeeId) {
-       List<MonthlyWorkHours> monthlyWorkHoursList = new ArrayList<>();
-
-       // 查询指定员工的所有打卡记录
-       List<Attendance> attendances = attendanceRepository.findByEmployeeId(employeeId);
-
-       // 使用Map按月份分组计算总工作时长
-       Map<YearMonth, Duration> monthlyWorkHoursMap = new HashMap<>();
-       for (Attendance attendance : attendances) {
-           LocalDateTime checkIn = attendance.getCheckIn();
-           LocalDateTime endTime = attendance.getEndTime();
-           if (checkIn != null && endTime != null) {
-               YearMonth yearMonth = YearMonth.from(checkIn);
-               Duration workDuration = calculateWorkDuration(checkIn, endTime);
-               monthlyWorkHoursMap.merge(yearMonth, workDuration, Duration::plus);
-           }
-       }
-
-       // 将Map中的数据转换为MonthlyWorkHours对象列表
-       monthlyWorkHoursMap.forEach((yearMonth, duration) -> {
-           MonthlyWorkHours monthlyWorkHours = new MonthlyWorkHours();
-           monthlyWorkHours.setEmployeeId(employeeId);
-           monthlyWorkHours.setYearMonth(yearMonth);
-           monthlyWorkHours.setTotalWorkHours(formatDuration(duration));
-           monthlyWorkHoursList.add(monthlyWorkHours);
-       });
-
-       return monthlyWorkHoursList;
-   }
 
 
     /**
-     * 格式化工作时长为人类可读的格式（例如：8h 30m）
+     * 格式化工作时长为便于阅读的形式
      */
     public String formatDuration(Duration duration) {
         long hours = duration.toHours();

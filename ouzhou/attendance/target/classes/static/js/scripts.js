@@ -86,5 +86,49 @@ function calculateTotalWorkHours(checkInStr, breakTimeStr, endTimeStr) {
     return `${hours}小时 ${minutes}分`;
 }
 
-        
 
+//员工月份打卡时间
+
+document.addEventListener("DOMContentLoaded", function() {
+    const filterButton = document.getElementById("filterButton");
+
+    filterButton.addEventListener("click", function() {
+        const employeeId = document.getElementById("employeeIdInput").value;
+        const year = document.getElementById("yearSelect").value;
+   	    const month = document.getElementById("monthSelect").value;
+        
+		fetch(`/attendance/monthly/${employeeId}/${year}/${month}`)
+            .then(response => response.json())
+            .then(data => {
+				
+				console.log('Fetched data:', data);
+                // 处理从后端获取的数据
+                const tableBody = document.querySelector("table tbody");
+                tableBody.innerHTML = ''; // 清空表格内容
+
+                data.attendances.forEach(record => {
+                    let row = document.createElement('tr');
+                    row.innerHTML =`
+                        <td>${record.employeeId}</td>
+                        <td>${formatDateTime(record.checkIn)}</td>
+                        <td>${formatDateTime(record.breakTime)}</td>
+                        <td>${formatDateTime(record.endTime)}</td>
+                        <td>${calculateTotalWorkHours(record.checkIn, record.breakTime, record.endTime)}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+			
+                // 显示总工作时长等其他逻辑
+                document.getElementById("totalHours").textContent = "该月总工作时长 " + data.totalHours;
+            })
+            .catch(error => {
+                console.error('Error fetching attendance records:', error);
+            });
+    });
+});
+
+function formatDateTime(dateTime) {
+    const date = new Date(dateTime);
+    return date.toLocaleString();
+}
+               

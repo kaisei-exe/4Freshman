@@ -6,7 +6,7 @@ public class MonthlyWorkHours {
 
     private Integer employeeId;
     private YearMonth yearMonth;
-    private String totalWorkHours; // 可以是格式化后的字符串，如 "8h 30m"
+    private String totalWorkHours; 
 
     // Getters and setters
     public Integer getEmployeeId() {

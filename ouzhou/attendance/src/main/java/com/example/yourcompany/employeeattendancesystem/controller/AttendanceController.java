@@ -1,11 +1,15 @@
 package com.example.yourcompany.employeeattendancesystem.controller;
 
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.yourcompany.employeeattendancesystem.model.Attendance;
-import com.example.yourcompany.employeeattendancesystem.model.MonthlyWorkHours;
 import com.example.yourcompany.employeeattendancesystem.repository.AttendanceRepository;
 import com.example.yourcompany.employeeattendancesystem.service.AttendanceService;
 
@@ -83,12 +86,23 @@ public class AttendanceController {
     public List<Attendance> getAllAttendances() {
         return attendanceRepository.findAll();
     }
-        /**
-         * 按月份获取指定员工的总工作时长
-         */
-        @GetMapping("/totalWorkHoursByMonth/{employeeId}")
-        public List<MonthlyWorkHours> getTotalWorkHoursByMonth(@PathVariable Integer employeeId) {
-            return attendanceService.getTotalWorkHoursByMonth(employeeId);
+    
+    @GetMapping("/monthly/{employeeId}/{year}/{month}")
+    public ResponseEntity<Map<String, Object>> getMonthlyAttendance(@PathVariable int employeeId,
+                                                    @PathVariable int year,
+                                                    @PathVariable int month) {
+        List<Attendance> attendances = attendanceService.getAttendanceByEmployeeIdAndYearMonth(employeeId, year, month);
+        System.out.println("Fetched attendances: " + attendances.size()); // 添加日志
+        Duration totalWorkDuration= attendanceService.calculateTotalWorkDuration(attendances);
+        	
+        long totalHours = totalWorkDuration.toHours();
+        long totalMinutes = totalWorkDuration.toMinutesPart();
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("attendances", attendances);
+        response.put("totalHours", totalHours + "小时 " + totalMinutes + "分");
+
+        return ResponseEntity.ok(response);
     }
 }
 
